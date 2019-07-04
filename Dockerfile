@@ -1,20 +1,16 @@
-# Use an official Python runtime as a parent image
 FROM python:3.6.8
 
-# Set the working directory to /app
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY d /app
-
-# Install any needed packages specified in requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+COPY . /app
 
-# Define environment variable
-ENV NAME World
+EXPOSE 8000
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+ENV \
+  PYTHONUNBUFFERED=1 \
+  PYTHONPATH="/app:${PYTHONPATH}"
+
+CMD ["python", "/app/manage.py", "runserver"]
