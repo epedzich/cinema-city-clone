@@ -1,8 +1,7 @@
 import datetime
 
 import requests
-from flask import Flask
-from jinja2 import Template
+
 
 cinemas_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/cinemas/with-event/until/2020-06-20'
 movies_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/film-events/in-cinema/1067/at-date/2019-06-21'
@@ -43,22 +42,15 @@ def get_movies(cinema, date=datetime.date.today()):
         event['film'] = films[film_id]
         event['day'], event['hour'] = event['eventDateTime'].split('T')
         event['hour'] = event['hour'][:5]
+        event_attributes = event['attributeIds']
+        event['attributes'] = ', '.join([attr for attr in event_attributes if attr in '2d 3d imax 4dx dubbed subbed'])
 
     return events
 
 
-app = Flask(__name__)
+def get_dates(cinema_id):
+    response = requests.get(f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
+    response.raise_for_status()
 
-with open('get_events.j2') as f:
-    template = Template(f.read())
-
-
-@app.route('/')
-def get_events():
-    cinema_id = '1067'
-    date = datetime.date.today()
-
-    cinemas = get_cinemas(date=date)
-    events = get_movies(cinemas[cinema_id], date=date)
-
-    return template.render(events=events, date=date)
+    dates_response = response.json()['body']['dates']
+    return dates_response

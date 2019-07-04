@@ -1,0 +1,44 @@
+{% extends 'cinemas_repertoire/index.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+    <h2 class="custom-date" align="center">{{ date|date:"D d.m" }}</h2>
+    <form action="#" method="GET" class="cinemaChoice" novalidate>
+        {{ cinema_form }}
+        {{ date_form }}
+    </form>
+    <p></p>
+    <div class="container">
+        <table id="repertoir" class="display compact">
+            <thead>
+            <tr>
+                <th>Godzina</th>
+                <th>Tytuł</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for event in events.values %}
+                <tr>
+                    <td>{{ event.hour }}</td>
+                    <td>{{ event.film.name }} <p style="font-size: x-small">({{ event.attributes }})</p>
+                        <a href="{{ event.bookingLink }}"><i class="fas fa-shopping-basket"
+                                                             style="color: Mediumslateblue;"></i></a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            $('#id_cinema_id').on('change', function () {
+                $('form.cinemaChoice').submit()
+            });
+        })
+    </script>
+{% endblock %}

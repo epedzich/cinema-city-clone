@@ -1,0 +1,38 @@
+.custom-body {
+    /*background-image: url("../images/multimedia_file-512.png");*/
+    /*background-repeat: repeat;*/
+    background-color: rgba(25, 24, 52, 0.51);
+    padding-left: 20px;
+    /*background-size: 64px 64px;*/
+}
+
+.custom-date {
+    color: white;
+    alignment: center;
+    font-family: 'Rock Salt', cursive;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.custom-footer {
+    padding-bottom: 10%;
+}
+
+.select {
+    width:auto;
+}
+
+ul#id_date {
+    list-style-type: none;
+    margin-top: 15px;
+    width: 50%;
+    padding-left: 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+ul#id_date li {
+    margin-top: 5px;
+}
+
+
