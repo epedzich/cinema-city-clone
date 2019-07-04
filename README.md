@@ -1,5 +1,5 @@
 # cinema-city-clone
-Lighter version of www.cinema-cty.pl site based on Cinema City's API
+Lighter version of www.cinema-city.pl site based on Cinema City's API
 
 Installation:
 ------------
