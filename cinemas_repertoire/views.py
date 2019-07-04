@@ -21,6 +21,7 @@ def events_list(request):
         form_data.setdefault('cinema_id', cinema_id)
 
     form_data.setdefault('date', str(datetime.date.today()))
+    form_data.setdefault('cinema_id', '1088')
 
     cinema_form = CinemaForm(form_data or None)
     date_form = DateForm(form_data)
