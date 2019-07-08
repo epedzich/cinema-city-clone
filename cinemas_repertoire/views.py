@@ -4,7 +4,7 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from .utils import get_cinemas, get_movies, get_dates
+from .utils import get_cinemas, get_movies, get_dates, get_movie_details
 from .forms import CinemaForm, DateForm
 
 
@@ -41,4 +41,10 @@ def events_list(request):
         "date_form": date_form,
         "events": events,
         "date": date,
+    })
+
+
+def event_detail(request, id):
+    return render(request,   template_name='cinemas_repertoire/event_detail.html', context={
+        'event': get_movie_details(id)
     })

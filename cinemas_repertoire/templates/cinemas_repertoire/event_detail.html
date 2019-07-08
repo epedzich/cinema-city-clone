@@ -1,0 +1,43 @@
+{% extends 'cinemas_repertoire/index.html' %}
+
+{% block content %}
+    <div>
+        <a href=# onclick="history.back()"><i class="fas fa-arrow-left"></i> Powrót do listy filmów</a>
+    </div>
+    <div align="center">
+        <div class="detail-container">
+            <h2 class="grid-item-title">{{ event.name }}</h2>
+            <div class="grid-item-info">
+                <h3 class="inline-items"><i class="fas fa-clock"></i> {{ event.length }} min.</h3>
+                <h3 class="inline-items"><i class="fas fa-calendar-alt"></i> {{ event.releaseYear }}</h3>
+            </div>
+            <div style="text-align: center">
+                <div class="grid-item-synopsis">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed venenatis lacinia
+                        dolor, eget dapibus mauris suscipit vitae. Sed interdum dui lectus, non auctor lacus pulvinar
+                        eget.
+                        Suspendisse volutpat bibendum lorem quis vestibulum. Duis consequat risus diam, ac fringilla
+                        ante
+                        accumsan non. Vivamus congue dolor eleifend arcu imperdiet, et porttitor magna accumsan. Lorem
+                        ipsum
+                        dolor sit amet, consectetur adipiscing elit. Nam ultricies gravida ipsum, eget consectetur nisi
+                        condimentum quis. Duis fermentum orci vitae porta hendrerit. Donec tempor justo sit amet justo
+                        rhoncus,
+                        in ullamcorper mauris consequat. Aliquam euismod convallis libero in dictum. Curabitur velit
+                        velit,
+                        fermentum ut bibendum sed, faucibus ac ex. Fusce condimentum aliquet dapibus. Nullam pretium
+                        sapien
+                        nibh. Fusce nec pulvinar turpis. Vestibulum ante ipsum primis in faucibus orci luctus et
+                        ultrices
+                        posuere cubilia Curae; Sed semper neque et dolor lobortis, vitae tempus metus mattis.
+                    </p>
+                </div>
+            </div>
+            <div class="grid-item-poster">
+                <img src="{{ event.posterLink }}" class="poster">
+            </div>
+        </div>
+        <a href="{{ event.videoLink }}"></a>
+    </div>
+
+{% endblock %}

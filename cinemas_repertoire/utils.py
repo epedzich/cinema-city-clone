@@ -2,11 +2,11 @@ import datetime
 
 import requests
 
-
 cinemas_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/cinemas/with-event/until/2020-06-20'
 movies_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/film-events/in-cinema/1067/at-date/2019-06-21'
 events_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/film-events-dates/in-cinema/1067/as-at-date/2019-06-21'
 trailers_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/10103/trailers/byCinemaId/1067'
+movie_details_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/films/until/2020-07-04?attr=&lang=pl_PL'
 
 quickbook_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103'
 
@@ -54,3 +54,11 @@ def get_dates(cinema_id):
 
     dates_response = response.json()['body']['dates']
     return dates_response
+
+
+def get_movie_details(film_id):
+    response = requests.get(f'{quickbook_url}/films/until/{datetime.date.today()}')
+    response.raise_for_status()
+
+    films_list = response.json()['body']['films']
+    return next(film for film in films_list if film['id'] == film_id)
