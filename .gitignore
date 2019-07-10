@@ -199,3 +199,4 @@ fabric.properties
 
 /shared/postgresql/
 
+.env.db

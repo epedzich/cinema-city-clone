@@ -4,17 +4,32 @@ services:
     build:
       context: .
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
     networks:
       - webnet
     command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env.db
+    volumes:
+      - .:/app:ro
+    depends_on:
+      - db
+      - memcached
   db:
     image: postgres:11.4
     volumes:
       - ./shared/postgresql:/var/lib/postgresql/data
     env_file:
-      - .envs/.local/.postgres
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
+      - .env.db
+    ports:
+      - '0.0.0.0:5432:5432'
+    networks:
+      - webnet
+  memcached:
+    image: 'bitnami/memcached:latest'
+    ports:
+      - '0.0.0.0:11211:11211'
+    networks:
+      - webnet
 networks:
   webnet:
