@@ -13,13 +13,16 @@ movie_details_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook
 quickbook_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103'
 
 
-def get_cinemas(date=datetime.date.today()):
+def get_cached_response(url):
     def get_response():
-        response = requests.get(
-            f'{quickbook_url}/cinemas/with-event/until/{date}')
+        response = requests.get(url)
         response.raise_for_status()
         return response.json()
-    api_response = cache.get_or_set('api_get_cinemas', get_response)
+    return cache.get_or_set(url, get_response)
+
+
+def get_cinemas(date=datetime.date.today()):
+    api_response = get_cached_response(url=f'{quickbook_url}/cinemas/with-event/until/{date}')
     return {
         cinema['id']: cinema
         for cinema in api_response['body']['cinemas']
@@ -27,11 +30,7 @@ def get_cinemas(date=datetime.date.today()):
 
 
 def get_movies(cinema, date=datetime.date.today()):
-    def get_response():
-        response = requests.get(f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
-        response.raise_for_status()
-        return response.json()
-    api_response = cache.get_or_set('api_get_movies', get_response)
+    api_response = get_cached_response(url=f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
     movies_response = api_response['body']
 
     films = {
@@ -56,20 +55,11 @@ def get_movies(cinema, date=datetime.date.today()):
 
 
 def get_dates(cinema_id):
-    def get_response():
-        response = requests.get(f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
-        response.raise_for_status()
-        return response.json()
-    api_response = cache.get_or_set('api_get_dates', get_response)
-    dates_response = api_response['body']['dates']
-    return dates_response
+    api_response = get_cached_response(url=f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
+    return api_response['body']['dates']
 
 
 def get_movie_details(film_id):
-    def get_response():
-        response = requests.get(f'{quickbook_url}/films/until/{datetime.date.today()}')
-        response.raise_for_status()
-        return response.json()
-    api_response = cache.get_or_set('api_get_movie_details', get_response)
+    api_response = get_cached_response(url=f'{quickbook_url}/films/until/{datetime.date.today()}')
     films_list = api_response['body']['films']
     return next(film for film in films_list if film['id'] == film_id)
