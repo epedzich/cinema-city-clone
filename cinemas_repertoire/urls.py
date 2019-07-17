@@ -4,6 +4,7 @@ from . import views
 app_name = "repertoire"
 
 urlpatterns = [
-    path('repertoire/', views.events_list, name='cinema_movies'),
+    path('', views.events_list, name='cinema_movies'),
     path('cinema-dates/<str:cinema_id>', views.cinema_dates, name='cinema_dates'),
+    path('event/<slug:id>', views.event_detail, name='event_detail'),
 ]

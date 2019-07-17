@@ -20,7 +20,8 @@
             {% for event in events.values %}
                 <tr>
                     <td>{{ event.hour }}</td>
-                    <td>{{ event.film.name }} <p style="font-size: x-small">({{ event.attributes }})</p>
+                    <td><a href="{% url "repertoire:event_detail" id=event.filmId %}">{{ event.film.name }}</a>
+                        <p style="font-size: x-small">({{ event.attributes }})</p>
                         <a href="{{ event.bookingLink }}"><i class="fas fa-shopping-basket"
                                                              style="color: Mediumslateblue;"></i></a>
                     </td>
