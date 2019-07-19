@@ -39,6 +39,8 @@ schema_view = get_schema_view(
                             authentication.SessionAuthentication),
 )
 
+from cinema_city_clone import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('cinemas_repertoire.urls', 'repertoire')),
@@ -47,3 +49,9 @@ urlpatterns = [
     path('docs/', schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
     path('api/', include(router.urls)),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ] + urlpatterns

@@ -1,5 +1,7 @@
 import datetime
 
+from django.core.cache import cache
+
 import requests
 
 cinemas_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103/cinemas/with-event/until/2020-06-20'
@@ -11,21 +13,25 @@ movie_details_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook
 quickbook_url = 'https://www.cinema-city.pl/pl/data-api-service/v1/quickbook/10103'
 
 
+def get_cached_response(url):
+    def get_response():
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    return cache.get_or_set(url, get_response)
+
+
 def get_cinemas(date=datetime.date.today()):
-    response = requests.get(
-        f'{quickbook_url}/cinemas/with-event/until/{date}')
-    response.raise_for_status()
+    api_response = get_cached_response(url=f'{quickbook_url}/cinemas/with-event/until/{date}')
     return {
         cinema['id']: cinema
-        for cinema in response.json()['body']['cinemas']
+        for cinema in api_response['body']['cinemas']
     }
 
 
 def get_movies(cinema, date=datetime.date.today()):
-    response = requests.get(f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
-    response.raise_for_status()
-
-    movies_response = response.json()['body']
+    api_response = get_cached_response(url=f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
+    movies_response = api_response['body']
 
     films = {
         film['id']: film
@@ -49,11 +55,14 @@ def get_movies(cinema, date=datetime.date.today()):
 
 
 def get_dates(cinema_id):
-    response = requests.get(f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
-    response.raise_for_status()
+    api_response = get_cached_response(url=f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
+    return api_response['body']['dates']
 
-    dates_response = response.json()['body']['dates']
-    return dates_response
+
+def get_movie_details(film_id):
+    api_response = get_cached_response(url=f'{quickbook_url}/films/until/{datetime.date.today()}')
+    films_list = api_response['body']['films']
+    return next(film for film in films_list if film['id'] == film_id)
 
 
 def get_movie_details(film_id):
