@@ -19,10 +19,12 @@ from rest_framework import authentication, permissions, routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from cinemas_repertoire.rest_views import EventsViewset
+from cinemas_repertoire.rest_views import CinemasViewset, EventsViewset
 
 router = routers.DefaultRouter()
 router.register(r'movies', EventsViewset, basename='movies')
+router.register(r'cinemas', CinemasViewset, basename='cinemas')
+
 
 schema_view = get_schema_view(
     openapi.Info(
