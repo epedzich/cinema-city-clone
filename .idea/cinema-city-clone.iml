@@ -17,7 +17,7 @@
       <sourceFolder url="file://$MODULE_DIR$/cinemas_repertoire/static" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.virtualenv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.6 (cinema-city)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Remote Python 3.6.8 Docker Compose (app at [/home/ewelinapedzich/PycharmProjects/cinema-city-clone/docker-compose.yml])" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TemplatesService">
