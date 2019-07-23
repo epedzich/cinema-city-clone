@@ -19,11 +19,20 @@ from rest_framework import authentication, permissions, routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from cinemas_repertoire.rest_views import CinemasViewSet, EventsViewSet
+from cinemas_repertoire.rest_views import (
+    CCCinemasViewSet,
+    CinemasViewSet,
+    EventsViewSet,
+    MoviesViewSet,
+)
+from cinema_city_clone import settings
+
 
 router = routers.DefaultRouter()
-router.register(r'movies', EventsViewSet, basename='movies')
+router.register(r'events', EventsViewSet, basename='events')
+router.register(r'movies', MoviesViewSet, basename='movies')
 router.register(r'cinemas', CinemasViewSet, basename='cinemas')
+router.register(r'cinemas/cc', CCCinemasViewSet, basename='cc-cinemas')
 
 
 schema_view = get_schema_view(
@@ -38,8 +47,6 @@ schema_view = get_schema_view(
     authentication_classes=(authentication.TokenAuthentication,
                             authentication.SessionAuthentication),
 )
-
-from cinema_city_clone import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),

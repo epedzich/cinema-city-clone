@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'cinemas_repertoire',
     'debug_toolbar',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

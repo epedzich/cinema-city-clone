@@ -29,17 +29,16 @@ def get_cinemas(date=datetime.date.today()):
     }
 
 
-def get_movies(cinema, date=datetime.date.today()):
-    api_response = get_cached_response(url=f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
-    movies_response = api_response['body']
+def get_events(cinema, date=datetime.date.today()):
+    response = get_film_events_response(cinema, date)
 
     films = {
         film['id']: film
-        for film in movies_response['films']
+        for film in response['films']
     }
     events = {
         event['id']: event
-        for event in movies_response['events']
+        for event in response['events']
     }
 
     for event in events.values():
@@ -54,6 +53,11 @@ def get_movies(cinema, date=datetime.date.today()):
     return events
 
 
+def get_film_events_response(cinema, date=datetime.date.today()):
+    api_response = get_cached_response(url=f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
+    return api_response['body']
+
+
 def get_dates(cinema_id):
     api_response = get_cached_response(url=f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
     return api_response['body']['dates']
@@ -62,12 +66,4 @@ def get_dates(cinema_id):
 def get_movie_details(film_id):
     api_response = get_cached_response(url=f'{quickbook_url}/films/until/{datetime.date.today()}')
     films_list = api_response['body']['films']
-    return next(film for film in films_list if film['id'] == film_id)
-
-
-def get_movie_details(film_id):
-    response = requests.get(f'{quickbook_url}/films/until/{datetime.date.today()}')
-    response.raise_for_status()
-
-    films_list = response.json()['body']['films']
     return next(film for film in films_list if film['id'] == film_id)

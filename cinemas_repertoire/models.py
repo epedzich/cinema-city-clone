@@ -13,7 +13,7 @@ class AddressInfo(models.Model):
 
 
 class CinemaCityCinema(models.Model):
-    cinema_id = models.CharField(max_length=10, unique=True)
+    cc_cinema_id = models.CharField(max_length=10, unique=True)
     group_id = models.CharField(max_length=50)
     display_name = models.CharField(max_length=100)
     link = models.URLField()
@@ -28,7 +28,7 @@ class CinemaCityCinema(models.Model):
 
 
 class CinemaCityMovie(models.Model):
-    movie_id = models.CharField(max_length=10, unique=True)
+    cc_movie_id = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100)
     length = models.IntegerField()
     poster_link = models.URLField()
@@ -40,9 +40,9 @@ class CinemaCityMovie(models.Model):
 
 
 class CinemaCityEvent(models.Model):
-    event_id = models.CharField(max_length=10, unique=True)
-    film = models.ForeignKey(CinemaCityMovie, on_delete=models.CASCADE, to_field='movie_id', )
-    cinema = models.ForeignKey(CinemaCityCinema, on_delete=models.CASCADE, to_field='cinema_id')
+    cc_event_id = models.CharField(max_length=10, unique=True)
+    cc_film = models.ForeignKey(CinemaCityMovie, on_delete=models.CASCADE, to_field='cc_movie_id', db_constraint=False)
+    cc_cinema = models.ForeignKey(CinemaCityCinema, on_delete=models.CASCADE, to_field='cc_cinema_id', db_constraint=False)
     business_day = models.CharField(max_length=15)
     event_datetime = models.DateTimeField()
     attribute_ids = ArrayField(models.CharField(max_length=10))

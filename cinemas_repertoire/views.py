@@ -4,7 +4,7 @@ import json
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from .utils import get_cinemas, get_movies, get_dates, get_movie_details
+from .utils import get_cinemas, get_events, get_dates, get_movie_details
 from .forms import CinemaForm, DateForm
 
 
@@ -33,7 +33,7 @@ def events_list(request):
         date_form.set_cinema_id(cinema_id)
         if date_form.is_valid():
             date = date_form.cleaned_data['date']
-            events = get_movies(get_cinemas()[cinema_id], date=date)
+            events = get_events(get_cinemas()[cinema_id], date=date)
             request.session['cinema_id'] = cinema_id
 
     return render(request, template_name='cinemas_repertoire/cinemas_list.html', context={

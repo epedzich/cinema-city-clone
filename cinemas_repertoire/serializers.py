@@ -8,21 +8,21 @@ from .models import (
 
 
 class CinemaCityMovieAPIResponseSerializer(serializers.Serializer):
-    movie_id = serializers.CharField(source='id')
+    cc_movie_id = serializers.CharField(source='id')
     name = serializers.CharField()
     length = serializers.IntegerField()
     poster_link = serializers.URLField(source='posterLink')
     video_link = serializers.URLField(source='videoLink')
     link = serializers.URLField()
     weight = serializers.IntegerField()
-    release_year = serializers.IntegerField()
+    release_year = serializers.IntegerField(source='releaseYear')
     attribute_ids = serializers.ListField(source='attributeIds')
 
 
 class CinemaCityEventAPIResponseSerializer(serializers.Serializer):
-    event_id = serializers.CharField(source='id')
-    film_id = serializers.CharField(source='filmId')
-    cinema_id = serializers.CharField(source='cinemaId')
+    cc_event_id = serializers.CharField(source='id')
+    cc_film_id = serializers.CharField(source='filmId')
+    cc_cinema_id = serializers.CharField(source='cinemaId')
     business_day = serializers.CharField(source='businessDay')
     event_datetime = serializers.DateTimeField(source='eventDateTime')
     attribute_ids = serializers.ListField(source='attributeIds')
@@ -41,7 +41,7 @@ class AddressInfoAPIResponseSerializer(serializers.Serializer):
 
 
 class CinemaCityCinemaAPIResponseSerializer(serializers.Serializer):
-    cinema_id = serializers.CharField(source='id')
+    cc_cinema_id = serializers.CharField(source='id')
     group_id = serializers.CharField(source='groupId')
     display_name = serializers.CharField(source='displayName')
     link = serializers.URLField()
@@ -58,31 +58,43 @@ class CinemaCityCinemaAPIResponseSerializer(serializers.Serializer):
 class AddressInfoModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AddressInfo
-        fields = ['address_1', 'address_2', ' address_3', 'address_4', 'city', 'state', 'postal_code']
+        fields = ['address_1', 'address_2', 'address_3', 'address_4', 'city', 'state', 'postal_code']
 
 
 class CinemaCityCinemaModelSerializer(serializers.ModelSerializer):
     address_info = AddressInfoModelSerializer()
+    detail_link = serializers.HyperlinkedIdentityField(view_name='cinemas-detail')
 
     class Meta:
         model = CinemaCityCinema
         fields = [
-            'id', 'group_id', 'display_name', 'link', 'image_url', 'address', 'booking_url', 'block_online_sales',
-                  'block_online_sales_until', 'latitude', 'longitude', 'address_info'
+            'id', 'detail_link', 'cc_cinema_id', 'group_id', 'display_name', 'link', 'image_url', 'address',
+            'booking_url', 'block_online_sales', 'block_online_sales_until', 'latitude', 'longitude', 'address_info'
         ]
 
 
 class CinemaCityMovieModelSerializer(serializers.ModelSerializer):
+    detail_link = serializers.HyperlinkedIdentityField(view_name='movies-detail')
+
     class Meta:
         model = CinemaCityMovie
         fields = [
-            'movie_id', 'name', 'length', 'poster_link', 'video_link', 'link', 'weight', 'release_year', 'attribute_ids'
+            'id', 'detail_link', 'cc_movie_id', 'name', 'length', 'poster_link', 'video_link', 'link', 'weight',
+            'release_year', 'attribute_ids'
         ]
 
 
 class CinemaCityEventModelSerializer(serializers.ModelSerializer):
+    link = serializers.HyperlinkedIdentityField(view_name='events-detail')
+    cc_cinema = serializers.HyperlinkedRelatedField(
+        lookup_field='cc_cinema_id',
+        view_name='cc-cinemas-detail',
+        read_only=True
+    )
+
     class Meta:
         model = CinemaCityEvent
         fields = [
-            'event_id', 'film', 'cinema', 'business_day', 'event_datetime', 'attribute_ids', 'booking_link', 'sold_out'
+            'id', 'link', 'cc_event_id', 'cc_film_id', 'cc_cinema_id', 'business_day', 'event_datetime',
+            'attribute_ids', 'booking_link', 'sold_out', 'cc_cinema'
         ]

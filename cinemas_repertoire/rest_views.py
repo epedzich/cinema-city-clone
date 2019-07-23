@@ -1,5 +1,4 @@
 from rest_framework import viewsets
-from rest_framework.response import Response
 
 from cinemas_repertoire.models import (
     AddressInfo,
@@ -9,13 +8,13 @@ from cinemas_repertoire.models import (
 )
 from .serializers import (
     CinemaCityCinemaAPIResponseSerializer,
-    CinemaCityEventAPIResponseSerializer,
-    CinemaCityMovieAPIResponseSerializer,
     CinemaCityCinemaModelSerializer,
+    CinemaCityEventAPIResponseSerializer,
     CinemaCityEventModelSerializer,
+    CinemaCityMovieAPIResponseSerializer,
     CinemaCityMovieModelSerializer,
 )
-from .utils import get_cinemas, get_movies
+from .utils import get_cinemas, get_film_events_response
 
 
 class EventsViewSet(viewsets.ModelViewSet):
@@ -25,21 +24,6 @@ class EventsViewSet(viewsets.ModelViewSet):
         update_events()
         return CinemaCityEvent.objects.all()
 
-    # def list(self, request):
-    #     movie_data = [
-    #         {
-    #             "cinema": cinema['id'],
-    #             "date": event['eventDateTime'],
-    #             "name": event['film']['name'],
-    #             "length": event['film']['length'],
-    #             "release_year": event['film']['releaseYear'],
-    #         }
-    #         for cinema in get_cinemas().values()
-    #         for event in get_movies(cinema).values()
-    #     ]
-    #     results = CinemaCityMovieAPIResponseSerializer(movie_data, many=True).data
-    #     return Response(results)
-
 
 class CinemasViewSet(viewsets.ModelViewSet):
     serializer_class = CinemaCityCinemaModelSerializer
@@ -47,6 +31,10 @@ class CinemasViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         update_cinemas()
         return CinemaCityCinema.objects.all()
+
+
+class CCCinemasViewSet(CinemasViewSet):
+    lookup_field = 'cc_cinema_id'
 
 
 class MoviesViewSet(viewsets.ModelViewSet):
@@ -63,7 +51,7 @@ def update_cinemas():
     for data in serializer.data:
         kwargs = data.copy()
         address_info_kwargs = kwargs.pop('address_info')
-        cinema, _ = CinemaCityCinema.objects.update_or_create(cinema_id=kwargs.pop('cinema_id'), defaults=kwargs)
+        cinema, _ = CinemaCityCinema.objects.update_or_create(cc_cinema_id=kwargs.pop('cc_cinema_id'), defaults=kwargs)
         if not cinema.address_info:
             address_info = AddressInfo.objects.create(**address_info_kwargs)
         else:
@@ -86,8 +74,16 @@ def update_cinemas():
 
 
 def update_events():
-    pass
+    for cinema in get_cinemas().values():
+        serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema)['events'], many=True)
+        for data in serializer.data:
+            kwargs = data.copy()
+            event, _ = CinemaCityEvent.objects.update_or_create(cc_event_id=kwargs.pop('cc_event_id'), defaults=kwargs)
 
 
 def update_movies():
-    pass
+    for cinema in get_cinemas().values():
+        serializer = CinemaCityMovieAPIResponseSerializer(get_film_events_response(cinema=cinema)['films'], many=True)
+        for data in serializer.data:
+            kwargs = data.copy()
+            film, _ = CinemaCityMovie.objects.update_or_create(cc_movie_id=kwargs.pop('cc_movie_id'), defaults=kwargs)
