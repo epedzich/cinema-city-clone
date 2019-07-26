@@ -1,11 +1,16 @@
-import datetime
+from datetime import datetime
 import json
 
+from cinemas_repertoire.rest_views import update_events
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
+from django.views.generic import DetailView
 
-from .utils import get_cinemas, get_events, get_dates, get_movie_details
 from .forms import CinemaForm, DateForm
+from .models import CinemaCityEvent, CinemaCityMovie
+from .utils import get_dates
 
 
 def cinema_dates(request, cinema_id):
@@ -20,7 +25,7 @@ def events_list(request):
     if cinema_id:
         form_data.setdefault('cinema_id', cinema_id)
 
-    form_data.setdefault('date', str(datetime.date.today()))
+    form_data.setdefault('date', str(datetime.today().date()))
     form_data.setdefault('cinema_id', '1088')
 
     cinema_form = CinemaForm(form_data or None)
@@ -33,7 +38,14 @@ def events_list(request):
         date_form.set_cinema_id(cinema_id)
         if date_form.is_valid():
             date = date_form.cleaned_data['date']
-            events = get_events(get_cinemas()[cinema_id], date=date)
+            update_events(date)
+            if date == datetime.today().date():
+                date_time_now = datetime.combine(date, timezone.now().timetz())
+            else:
+                date_time_now = timezone.make_aware(datetime.combine(date, datetime.min.time()))
+            date_time_eod = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+            events = CinemaCityEvent.objects.filter(
+                Q(cc_cinema=cinema_id, event_datetime__range=[date_time_now, date_time_eod]))
             request.session['cinema_id'] = cinema_id
 
     return render(request, template_name='cinemas_repertoire/cinemas_list.html', context={
@@ -44,7 +56,8 @@ def events_list(request):
     })
 
 
-def event_detail(request, id):
-    return render(request,   template_name='cinemas_repertoire/event_detail.html', context={
-        'event': get_movie_details(id)
-    })
+class FilmDetailView(DetailView):
+    model = CinemaCityMovie
+    template_name = 'cinemas_repertoire/film_detail.html'
+    context_object_name = 'film'
+    slug_field = 'cc_movie_id'

@@ -6,10 +6,10 @@
     </div>
     <div align="center">
         <div class="detail-container">
-            <h2 class="grid-item-title">{{ event.name }}</h2>
+            <h2 class="grid-item-title">{{ film.name }}</h2>
             <div class="grid-item-info">
-                <h3 class="inline-items"><i class="fas fa-clock"></i> {{ event.length }} min.</h3>
-                <h3 class="inline-items"><i class="fas fa-calendar-alt"></i> {{ event.releaseYear }}</h3>
+                <h3 class="inline-items"><i class="fas fa-clock"></i> {{ film.length }} min.</h3>
+                <h3 class="inline-items"><i class="fas fa-calendar-alt"></i> {{ film.release_year }}</h3>
             </div>
             <div style="text-align: center">
                 <div class="grid-item-synopsis">
@@ -34,10 +34,10 @@
                 </div>
             </div>
             <div class="grid-item-poster">
-                <img src="{{ event.posterLink }}" class="poster">
+                <img src="{{ film.poster_link }}" class="poster">
             </div>
         </div>
-        <a href="{{ event.videoLink }}"></a>
+        <a href="{{ film.video_link }}"></a>
     </div>
 
 {% endblock %}

@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import viewsets
 
 from cinemas_repertoire.models import (
@@ -73,17 +75,19 @@ def update_cinemas():
     return serializer.data, cinema_list
 
 
-def update_events():
-    for cinema in get_cinemas().values():
-        serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema)['events'], many=True)
+def update_events(date=None):
+    date = date or datetime.date.today()
+    for cinema in get_cinemas(date=date).values():
+        serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['events'], many=True)
         for data in serializer.data:
             kwargs = data.copy()
             event, _ = CinemaCityEvent.objects.update_or_create(cc_event_id=kwargs.pop('cc_event_id'), defaults=kwargs)
 
 
-def update_movies():
+def update_movies(date=None):
+    date = date or datetime.date.today()
     for cinema in get_cinemas().values():
-        serializer = CinemaCityMovieAPIResponseSerializer(get_film_events_response(cinema=cinema)['films'], many=True)
+        serializer = CinemaCityMovieAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['films'], many=True)
         for data in serializer.data:
             kwargs = data.copy()
             film, _ = CinemaCityMovie.objects.update_or_create(cc_movie_id=kwargs.pop('cc_movie_id'), defaults=kwargs)

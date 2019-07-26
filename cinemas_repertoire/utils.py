@@ -21,7 +21,8 @@ def get_cached_response(url):
     return cache.get_or_set(url, get_response)
 
 
-def get_cinemas(date=datetime.date.today()):
+def get_cinemas(date=None):
+    date = date or datetime.date.today()
     api_response = get_cached_response(url=f'{quickbook_url}/cinemas/with-event/until/{date}')
     return {
         cinema['id']: cinema
@@ -29,31 +30,8 @@ def get_cinemas(date=datetime.date.today()):
     }
 
 
-def get_events(cinema, date=datetime.date.today()):
-    response = get_film_events_response(cinema, date)
-
-    films = {
-        film['id']: film
-        for film in response['films']
-    }
-    events = {
-        event['id']: event
-        for event in response['events']
-    }
-
-    for event in events.values():
-        film_id = event['filmId']
-        event['cinema'] = cinema
-        event['film'] = films[film_id]
-        event['day'], event['hour'] = event['eventDateTime'].split('T')
-        event['hour'] = event['hour'][:5]
-        event_attributes = event['attributeIds']
-        event['attributes'] = ', '.join([attr for attr in event_attributes if attr in '2d 3d imax 4dx dubbed subbed'])
-
-    return events
-
-
-def get_film_events_response(cinema, date=datetime.date.today()):
+def get_film_events_response(cinema, date=None):
+    date = date or datetime.date.today()
     api_response = get_cached_response(url=f'{quickbook_url}/film-events/in-cinema/{cinema["id"]}/at-date/{date}')
     return api_response['body']
 
@@ -62,8 +40,3 @@ def get_dates(cinema_id):
     api_response = get_cached_response(url=f'{quickbook_url}/dates/in-cinema/{cinema_id}/until/2020-06-30')
     return api_response['body']['dates']
 
-
-def get_movie_details(film_id):
-    api_response = get_cached_response(url=f'{quickbook_url}/films/until/{datetime.date.today()}')
-    films_list = api_response['body']['films']
-    return next(film for film in films_list if film['id'] == film_id)
