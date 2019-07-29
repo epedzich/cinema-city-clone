@@ -11,7 +11,7 @@ services:
     env_file:
       - .env.db
     volumes:
-      - .:/app:ro
+      - .:/app:rw
     depends_on:
       - db
       - memcached

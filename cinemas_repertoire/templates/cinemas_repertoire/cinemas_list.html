@@ -1,5 +1,6 @@
 {% extends 'cinemas_repertoire/index.html' %}
 {% load crispy_forms_tags %}
+{% load cinemas_repertoire %}
 {% block content %}
 
     <h2 class="custom-date" align="center">{{ date|date:"D d.m" }}</h2>
@@ -17,12 +18,12 @@
             </tr>
             </thead>
             <tbody>
-            {% for event in events.values %}
+            {% for event in events %}
                 <tr>
-                    <td>{{ event.hour }}</td>
-                    <td><a href="{% url "repertoire:event_detail" id=event.filmId %}">{{ event.film.name }}</a>
-                        <p style="font-size: x-small">({{ event.attributes }})</p>
-                        <a href="{{ event.bookingLink }}"><i class="fas fa-shopping-basket"
+                    <td>{{ event.event_datetime|date:"G:i" }}</td>
+                    <td><a href="{% url "repertoire:film_detail" slug=event.cc_film_id %}">{{ event.cc_film.name }}</a>
+                        <p style="font-size: x-small">({{ event.attribute_ids|show_audio_video_attrs }})</p>
+                        <a href="{{ event.booking_link }}"><i class="fas fa-shopping-basket"
                                                              style="color: Mediumslateblue;"></i></a>
                     </td>
                 </tr>
