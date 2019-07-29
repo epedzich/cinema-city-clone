@@ -75,13 +75,15 @@ def update_cinemas():
     return serializer.data, cinema_list
 
 
-def update_events(date=None):
+def update_events(date=None, id=None):
     date = date or datetime.date.today()
     for cinema in get_cinemas(date=date).values():
-        serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['events'], many=True)
-        for data in serializer.data:
-            kwargs = data.copy()
-            event, _ = CinemaCityEvent.objects.update_or_create(cc_event_id=kwargs.pop('cc_event_id'), defaults=kwargs)
+        if cinema['id'] == id:
+            serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['events'], many=True)
+            for data in serializer.data:
+                kwargs = data.copy()
+                event, _ = CinemaCityEvent.objects.update_or_create(cc_event_id=kwargs.pop('cc_event_id'), defaults=kwargs)
+            break
 
 
 def update_movies(date=None):

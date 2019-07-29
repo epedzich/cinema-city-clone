@@ -38,7 +38,7 @@ def events_list(request):
         date_form.set_cinema_id(cinema_id)
         if date_form.is_valid():
             date = date_form.cleaned_data['date']
-            update_events(date)
+            update_events(date, id=cinema_id)
             if date == datetime.today().date():
                 date_time_now = datetime.combine(date, timezone.now().timetz())
             else:
