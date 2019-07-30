@@ -1,3 +1,6 @@
+import datetime
+import pytz
+
 from rest_framework import serializers
 from .models import (
     AddressInfo,
@@ -5,6 +8,14 @@ from .models import (
     CinemaCityEvent,
     CinemaCityMovie
 )
+
+
+class DateTimeFieldWihTZ(serializers.DateTimeField):
+    """Class to make output of a DateTime Field timezone aware"""
+    def to_representation(self, value):
+        value_as_datetime = datetime.datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+        value = pytz.timezone('Europe/Warsaw').localize(value_as_datetime).astimezone(pytz.utc)
+        return super(DateTimeFieldWihTZ, self).to_representation(value)
 
 
 class CinemaCityMovieAPIResponseSerializer(serializers.Serializer):
@@ -24,7 +35,7 @@ class CinemaCityEventAPIResponseSerializer(serializers.Serializer):
     cc_film_id = serializers.CharField(source='filmId')
     cc_cinema_id = serializers.CharField(source='cinemaId')
     business_day = serializers.CharField(source='businessDay')
-    event_datetime = serializers.DateTimeField(source='eventDateTime')
+    event_datetime = DateTimeFieldWihTZ(source='eventDateTime')
     attribute_ids = serializers.ListField(source='attributeIds')
     booking_link = serializers.URLField(source='bookingLink')
     sold_out = serializers.BooleanField(source='soldOut')
