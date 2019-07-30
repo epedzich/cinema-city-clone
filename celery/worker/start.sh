@@ -5,4 +5,4 @@ set -o pipefail
 set -o nounset
 set -o xtrace
 
-watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A cinema_city_clone.celery:app worker -l INFO
+watchmedo auto-restart --directory=./ --pattern=tasks.py;settings.py --recursive -- celery -A cinema_city_clone.celery:app worker -l INFO
