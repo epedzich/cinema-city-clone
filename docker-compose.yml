@@ -1,6 +1,6 @@
 version: "3"
 services:
-  app:
+  app: &app
     build:
       context: .
     ports:
@@ -31,5 +31,33 @@ services:
       - '0.0.0.0:11211:11211'
     networks:
       - webnet
+  redis:
+    image: redis:3.0
+    networks:
+      - webnet
+  celeryworker:
+    <<: *app
+    container_name: cinema-city-clone-celeryworker
+    depends_on:
+      - redis
+      - db
+    ports: []
+    command: /start-celeryworker.sh
+
+  celerybeat:
+    <<: *app
+    container_name: cinema-city-clone-celerybeat
+    depends_on:
+      - redis
+      - db
+    ports: []
+    command: /start-celerybeat.sh
+
+  flower:
+    <<: *app
+    container_name: cinema-city-clone-flower
+    ports:
+      - "5555:5555"
+    command: /start-flower.sh
 networks:
   webnet:
