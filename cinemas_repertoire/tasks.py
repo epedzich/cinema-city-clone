@@ -86,6 +86,6 @@ def update_cinemas_events_and_movies():
 app.conf.beat_schedule = {
     'update_from_api_once_a_day': {
         'task': 'cinemas_repertoire.tasks.update_cinemas_events_and_movies',
-        'schedule': crontab(minute=12, hour=12)
+        'schedule': crontab(minute=0, hour=0)
     }
 }
