@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import datetime
 
-from celery.schedules import crontab
+from cinema_city_clone import settings
 from requests import RequestException
 
 from cinema_city_clone.celery import app
@@ -89,9 +89,9 @@ def update_cinemas_events_and_movies():
 
 
 app.conf.beat_schedule = {
-    'update_from_api_once_a_day': {
+    'update_from_api_at_midnight': {
         'task': 'cinemas_repertoire.tasks.update_cinemas_events_and_movies',
-        'schedule': crontab(minute=0, hour=0)
+        'schedule': settings.CRON_UPDATE_FROM_API_AT_MIDNIGHT
     }
 }
 
