@@ -45,6 +45,7 @@ def update_cinemas():
             cinema.address_info = address_info
             cinema.save()
         cinema_list.append(cinema)
+    return [cinema.cc_cinema_id for cinema in cinema_list]
 
 
 @app.task(autoretry_for=(RequestException,), retry_backoff=True)
@@ -74,13 +75,17 @@ def update_movies_per_cinema(cinema_id, date=None):
 
 
 @app.task()
-def update_cinemas_events_and_movies():
-    update_cinemas.delay()
-    for cinema in get_cinemas().values():
-        dates = get_dates(cinema_id=cinema['id'])
+def update_events_and_movies(cinema_ids):
+    for cinema_id in cinema_ids:
+        dates = get_dates(cinema_id=cinema_id)
         for date in dates:
-            update_events_per_cinema.delay(cinema['id'], date)
-            update_movies_per_cinema.delay(cinema['id'], date)
+            update_events_per_cinema.delay(cinema_id, date)
+        update_movies_per_cinema.delay(cinema_id)
+
+
+@app.task()
+def update_cinemas_events_and_movies():
+    update_cinemas.apply_async((), link=update_events_and_movies.s())
 
 
 app.conf.beat_schedule = {
@@ -89,3 +94,4 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=0)
     }
 }
+
