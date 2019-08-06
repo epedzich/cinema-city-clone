@@ -1,7 +1,6 @@
 from datetime import datetime
 import json
 
-from cinemas_repertoire.rest_views import update_events
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -38,7 +37,6 @@ def events_list(request):
         date_form.set_cinema_id(cinema_id)
         if date_form.is_valid():
             date = date_form.cleaned_data['date']
-            update_events(date, id=cinema_id)
             if date == datetime.today().date():
                 date_time_now = datetime.combine(date, timezone.now().timetz())
             else:
