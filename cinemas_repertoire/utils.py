@@ -22,7 +22,7 @@ def get_cached_response(url):
 
 
 def get_cinemas(date=None):
-    date = date or datetime.date.today()
+    date = date or (datetime.date.today() + datetime.timedelta(days=30))
     api_response = get_cached_response(url=f'{quickbook_url}/cinemas/with-event/until/{date}')
     return {
         cinema['id']: cinema

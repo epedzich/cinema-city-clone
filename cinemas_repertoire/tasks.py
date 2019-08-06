@@ -7,13 +7,12 @@ from requests import RequestException
 
 from cinema_city_clone.celery import app
 from cinemas_repertoire.models import (
-    AddressInfo,
     CinemaCityCinema,
     CinemaCityEvent,
     CinemaCityMovie
 )
 from cinemas_repertoire.serializers import (
-    CinemaCityCinemaAPIResponseSerializer,
+    CCCinemaAPIResponseSerializer,
     CinemaCityEventAPIResponseSerializer,
     CinemaCityMovieAPIResponseSerializer
 )
@@ -22,30 +21,17 @@ from cinemas_repertoire.utils import get_cinemas, get_film_events_response, get_
 
 @app.task(autoretry_for=(RequestException,), retry_backoff=True)
 def update_cinemas():
-    cinema_list = []
-    serializer = CinemaCityCinemaAPIResponseSerializer(get_cinemas().values(), many=True)
-    for data in serializer.data:
-        kwargs = data.copy()
-        address_info_kwargs = kwargs.pop('address_info')
-        cinema, _ = CinemaCityCinema.objects.update_or_create(cc_cinema_id=kwargs.pop('cc_cinema_id'), defaults=kwargs)
-        if not cinema.address_info:
-            address_info = AddressInfo.objects.create(**address_info_kwargs)
-        else:
-            address_info = cinema.address_info
-        changed = False
-        for key, value in address_info_kwargs.items():
-            existing = getattr(address_info, key, None)
-            if existing != value:
-                setattr(address_info, key, value)
-                changed = True
-        if changed:
-            address_info.save()
-
-        if address_info.pk != cinema.address_info_id:
-            cinema.address_info = address_info
-            cinema.save()
-        cinema_list.append(cinema)
-    return [cinema.cc_cinema_id for cinema in cinema_list]
+    responses = list(get_cinemas().values())
+    instances = {
+        cinema.cc_cinema_id: cinema
+        for cinema in CinemaCityCinema.objects.filter(cc_cinema_id__in=[r['id'] for r in responses])
+    }
+    instances = [instances.get(r['id'], None) for r in responses]
+    serializer = CCCinemaAPIResponseSerializer(instances, data=responses, many=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    ret = [cinema.cc_cinema_id for cinema in serializer.instance]
+    return ret
 
 
 @app.task(autoretry_for=(RequestException,), retry_backoff=True)
@@ -54,11 +40,15 @@ def update_events_per_cinema(cinema_id, date=None):
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     cinema = get_cinemas()[cinema_id]
-    serializer = CinemaCityEventAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['events'],
-                                                      many=True)
-    for data in serializer.data:
-        kwargs = data.copy()
-        event, _ = CinemaCityEvent.objects.update_or_create(cc_event_id=kwargs.pop('cc_event_id'), defaults=kwargs)
+    responses = get_film_events_response(cinema=cinema, date=date)['events']
+    instances = {
+        event.cc_event_id: event
+        for event in CinemaCityEvent.objects.filter(cc_event_id__in=[r['id'] for r in responses])
+    }
+    instances = [instances.get(r['id'], None) for r in responses]
+    serializer = CinemaCityEventAPIResponseSerializer(instances, data=responses, many=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
 
 
 @app.task(autoretry_for=(RequestException,), retry_backoff=True)
@@ -67,11 +57,15 @@ def update_movies_per_cinema(cinema_id, date=None):
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, '%Y-%m-%d').date()
     cinema = get_cinemas()[cinema_id]
-    serializer = CinemaCityMovieAPIResponseSerializer(get_film_events_response(cinema=cinema, date=date)['films'],
-                                                      many=True)
-    for data in serializer.data:
-        kwargs = data.copy()
-        film, _ = CinemaCityMovie.objects.update_or_create(cc_movie_id=kwargs.pop('cc_movie_id'), defaults=kwargs)
+    responses = get_film_events_response(cinema=cinema, date=date)['films']
+    instances = {
+        movie.cc_movie_id: movie
+        for movie in CinemaCityMovie.objects.filter(cc_movie_id__in=[r['id'] for r in responses])
+    }
+    instances = [instances.get(r['id'], None) for r in responses]
+    serializer = CinemaCityMovieAPIResponseSerializer(instances, data=responses, many=True)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
 
 
 @app.task()
@@ -80,7 +74,7 @@ def update_events_and_movies(cinema_ids):
         dates = get_dates(cinema_id=cinema_id)
         for date in dates:
             update_events_per_cinema.delay(cinema_id, date)
-        update_movies_per_cinema.delay(cinema_id)
+            update_movies_per_cinema.delay(cinema_id, date)
 
 
 @app.task()
@@ -94,4 +88,3 @@ app.conf.beat_schedule = {
         'schedule': settings.CRON_UPDATE_FROM_API_AT_MIDNIGHT
     }
 }
-
