@@ -11,7 +11,7 @@ django-extensions==2.2.1
 django-filter==2.1.0
 django-redis==4.9.0
 django-rest-auth==0.9.5
-djangorestframework==3.9.4
+djangorestframework==3.11.2
 drf-yasg==1.16.1
 Flask==1.0.3
 flower==0.9.3
